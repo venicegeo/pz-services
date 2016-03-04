@@ -1,0 +1,14 @@
+applications:
+- name: pz-services-refapp
+  host: pz-services-refapp
+  path: app.jar
+  memory: 512M
+  instances: 1
+  timeout: 180
+  buildpack: java_buildpack_offline
+  services:
+    - pz-postgres
+    - pz-geoserver
+    - pz-blobstore
+  env:
+    CF_INSTANCE_PORTS: '[{external:5432,internal:5432}]'

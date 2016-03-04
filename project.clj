@@ -5,6 +5,7 @@
                  [org.clojure/data.json "0.2.6"]
                  [compojure "1.4.0"]
                  [http-kit "2.1.19"]
+                 [com.amazonaws/aws-java-sdk "1.9.35"]
                  [javax.servlet/servlet-api "2.5"]
                  [ring-middleware-format "0.7.0" :exclusions [commons-codec]]
                  [ring/ring-core "1.4.0" :exclusions [joda-time]]
