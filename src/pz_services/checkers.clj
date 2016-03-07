@@ -3,6 +3,7 @@
             [clojure.java.jdbc :as j]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
+            [clj-kafka.new.producer :as p]
             [org.httpkit.client :as client])
   (:import [com.amazonaws.services.s3 AmazonS3Client]
            [com.amazonaws.services.s3.model]
@@ -55,8 +56,27 @@
     (.start client)
     client))
 
-(defn zookeeper [client]
+(defn zookeeper [zkclient]
   (try
-    (.. client (getZookeeperClient) (isConnected))
+    (.. zkclient (getZookeeperClient) (isConnected))
     (catch Exception e
-      (log/errorf "Error connection to zookeeper %s: %s" (.getMessage e)))))
+      (log/errorf "Error connection to zookeeper %s: %s" zkclient (.getMessage e)))))
+
+(defn kafka-producer [address]
+  (let [conf {"bootstrap.servers" address
+              "producer.type" "sync"
+              "acks" "1"
+              "retries" (java.lang.Integer. 1)
+              "reconnect.backoff.ms" (java.lang.Integer. 100000)
+              "metadata.fetch.timeout.ms" (java.lang.Integer. 500)
+              "message.send.max.retries" (java.lang.Integer. 2)
+              "request.timeout.ms" (java.lang.Integer. 500)
+              "timeout.ms" (java.lang.Integer. 500)}]
+    (p/producer conf (p/byte-array-serializer) (p/byte-array-serializer))))
+
+(defn kafka [producer]
+  (let [record (.getBytes (json/write-str {"hello" "world"}))]
+    (try
+      @(p/send producer (p/record "pz-services-test" record))
+      (catch Exception e
+        (log/errorf "Error connection to kafka: %s" (.getMessage e))))))

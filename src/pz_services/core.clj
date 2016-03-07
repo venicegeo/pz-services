@@ -20,13 +20,15 @@
       (r/content-type "application/json")))
 
 (let [services (config/get-services)
-      zk-client (-> services :pz-zookeeper :host check/zk-connect)]
+      zk-client (-> services :pz-zookeeper :host check/zk-connect)
+      kafka-producer (-> services :pz-kafka :host check/kafka-producer)]
   (defn- status [req]
     (log/debugf "request: %s" (:remote-addr req))
     (render
      {:postgres (-> services config/get-db-config check/postgres)
       :s3 (-> services :pz-blobstore :bucket check/s3)
       :zk (check/zookeeper zk-client)
+      :kafka (check/kafka kafka-producer)
       :geoserver (check/http (format "%s:%s" (-> services :pz-geoserver :host)
                                              (-> services :pz-geoserver :port)))})))
 

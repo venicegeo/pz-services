@@ -11,5 +11,6 @@ applications:
     - pz-geoserver
     - pz-blobstore
     - pz-zookeeper
+    - pz-kafka
   env:
     CF_INSTANCE_PORTS: '[{external:5432,internal:5432}]'
