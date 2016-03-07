@@ -6,7 +6,7 @@
 (def defaults
   {:pz-postgres {:host "127.0.0.1"
                  :port "3000"
-                 :database "pgdb"
+                 :database "test"
                  :username "refuser"
                  :password "kpnAQMU2Zd972qVF"}
    :pz-ping {:host "127.0.0.1"}
@@ -33,4 +33,4 @@
   {:subprotocol "postgresql"
    :user (:username pz-postgres)
    :password (:password pz-postgres)
-   :subname (format "//%s:%s/%s" (:host pz-postgres) (:port pz-postgres) (:database pz-postgres))})
+   :subname (format "//%s:%s/test" (:host pz-postgres) (:port pz-postgres))})

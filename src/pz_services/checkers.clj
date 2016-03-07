@@ -17,31 +17,29 @@
      .getObjectContent
      slurp
      string/trim
-     json/read-str)
+     json/read-str
+     map?)
     (catch Exception e
       (log/errorf "Error requesting s3 %s: %s" bucket (.getMessage e)))))
 
 (defn http [url]
   (log/debugf "http: " url)
   (try
-    (:status @(client/get (format "http://%s/geoserver/web" url) {:timeout 300}))
+    (= 200 (:status @(client/get (format "http://%s/geoserver/web" url) {:timeout 1500})))
     (catch Exception e
-      (log/errorf "Error requesting %s: %s" url (.getMessage e))
-      "{}")))
+      (log/errorf "Error requesting %s: %s" url (.getMessage e)))))
 
 (defn ping [host]
   (log/debugf "ping: " host)
   (try
-    (.isReachable (InetAddress/getByName host) 2000)
+    (.isReachable (InetAddress/getByName host) 1500)
     (catch Exception e
       (log/errorf "Error pinging %s: %s" host (.getMessage e)))))
 
 (defn postgres [db]
   (log/debugf "postgres: " db)
   (try
-    (vec
-     (j/query
-      db
-      ["SELECT * FROM refapp LIMIT 1"]))
+    (when-let [results (seq (j/query db ["SELECT true"]))]
+      (-> results first :bool))
     (catch Exception e
       (log/errorf "Error retrieving test data: %s" (.getMessage e)))))

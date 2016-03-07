@@ -23,10 +23,11 @@
   (log/debugf "request: %s" (:remote-addr req))
   (let [services (config/get-services)]
     (render
-     {:postgres (check/postgres (config/get-db-config services))
-      :ping (check/ping (-> services :pz-ping :host))
+     {:postgres (-> services config/get-db-config check/postgres)
+      :ping (-> services :pz-ping :host check/ping)
       :s3 (-> services :pz-blobstore :bucket check/s3)
-      :geoserver (check/http (-> services :pz-geoserver :host))})))
+      :geoserver (check/http (format "%s:%s" (-> services :pz-geoserver :host)
+                                             (-> services :pz-geoserver :port)))})))
 
 (defroutes all-routes
   (GET "/" [] status))
