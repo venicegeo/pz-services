@@ -9,7 +9,7 @@
            [java.net InetAddress]))
 
 (defn s3 [bucket]
-  (log/debugf "s3: " bucket)
+  (log/debugf "s3: %s" bucket)
   (try
     (->
      (AmazonS3Client.)
@@ -23,21 +23,21 @@
       (log/errorf "Error requesting s3 %s: %s" bucket (.getMessage e)))))
 
 (defn http [url]
-  (log/debugf "http: " url)
+  (log/debugf "http: %s" url)
   (try
     (= 200 (:status @(client/get (format "http://%s/geoserver/web" url) {:timeout 1500})))
     (catch Exception e
       (log/errorf "Error requesting %s: %s" url (.getMessage e)))))
 
 (defn ping [host]
-  (log/debugf "ping: " host)
+  (log/debugf "ping: %s" host)
   (try
     (.isReachable (InetAddress/getByName host) 1500)
     (catch Exception e
       (log/errorf "Error pinging %s: %s" host (.getMessage e)))))
 
 (defn postgres [db]
-  (log/debugf "postgres: " db)
+  (log/debugf "postgres: %s" db)
   (try
     (when-let [results (seq (j/query db ["SELECT true"]))]
       (-> results first :bool))
