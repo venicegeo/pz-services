@@ -1,12 +1,13 @@
 applications:
-- name: pz-services-refapp
-  host: pz-services-refapp
+- name: pz-services
+  host: pz-services
   path: app.jar
   memory: 512M
   instances: 1
   timeout: 180
   buildpack: java_buildpack_offline
   services:
+    - pz-ping
     - pz-postgres
     - pz-geoserver
     - pz-blobstore
