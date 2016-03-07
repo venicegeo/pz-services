@@ -19,12 +19,11 @@
       r/response
       (r/content-type "application/json")))
 
-(defn- status [req]
-  (log/debugf "request: %s" (:remote-addr req))
-  (let [services (config/get-services)]
+(let [services (config/get-services)]
+  (defn- status [req]
+    (log/debugf "request: %s" (:remote-addr req))
     (render
      {:postgres (-> services config/get-db-config check/postgres)
-      :ping (-> services :pz-ping :host check/ping)
       :s3 (-> services :pz-blobstore :bucket check/s3)
       :geoserver (check/http (format "%s:%s" (-> services :pz-geoserver :host)
                                              (-> services :pz-geoserver :port)))})))

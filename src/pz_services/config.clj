@@ -6,7 +6,6 @@
 (def defaults
   {:pz-postgres {:host "127.0.0.1"
                  :port "3000"
-                 :database "test"
                  :username "refuser"
                  :password "kpnAQMU2Zd972qVF"}
    :pz-ping {:host "127.0.0.1"}

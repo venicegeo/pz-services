@@ -7,7 +7,6 @@ applications:
   timeout: 180
   buildpack: java_buildpack_offline
   services:
-    - pz-ping
     - pz-postgres
     - pz-geoserver
     - pz-blobstore
