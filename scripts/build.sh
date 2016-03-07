@@ -11,7 +11,7 @@ lein do clean, uberjar
 source $root/scripts/vars.sh
 
 # the path where the artifact is
-jarfile=$root/target/$APP-0.1.0-standalone.$EXT
+jarfile=$root/target/uberjar/$APP-0.1.0-standalone.$EXT
 
 # do we have this artifact in s3? If not, upload it.
 aws s3 ls $S3URL || aws s3 cp $jarfile $S3URL
