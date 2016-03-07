@@ -10,5 +10,6 @@ applications:
     - pz-postgres
     - pz-geoserver
     - pz-blobstore
+    - pz-zookeeper
   env:
     CF_INSTANCE_PORTS: '[{external:5432,internal:5432}]'

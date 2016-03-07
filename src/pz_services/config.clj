@@ -8,6 +8,7 @@
                  :port "3000"
                  :username "refuser"
                  :password "kpnAQMU2Zd972qVF"}
+   :pz-zookeeper {:host "127.0.0.1:2181"}
    :pz-ping {:host "127.0.0.1"}
    :pz-geoserver {:host "geoserver.piazzageo.io" :port "80"}
    :pz-blobstore {:bucket "pz-blobstore-staging"}})

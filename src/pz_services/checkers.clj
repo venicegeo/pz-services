@@ -6,7 +6,10 @@
             [org.httpkit.client :as client])
   (:import [com.amazonaws.services.s3 AmazonS3Client]
            [com.amazonaws.services.s3.model]
-           [java.net InetAddress]))
+           [java.net InetAddress]
+           [org.apache.curator.retry RetryNTimes]
+           [org.apache.curator.framework CuratorFramework
+            CuratorFrameworkFactory]))
 
 (defn s3 [bucket]
   (log/debugf "s3: %s" bucket)
@@ -43,3 +46,17 @@
       (-> results first :bool))
     (catch Exception e
       (log/errorf "Error retrieving test data: %s" (.getMessage e)))))
+
+(defn zk-connect [addr]
+  (let [client (.. (CuratorFrameworkFactory/builder)
+                   (connectString addr)
+                   (retryPolicy (RetryNTimes. Integer/MAX_VALUE 5000))
+                   (build))]
+    (.start client)
+    client))
+
+(defn zookeeper [client]
+  (try
+    (.. client (getZookeeperClient) (isConnected))
+    (catch Exception e
+      (log/errorf "Error connection to zookeeper %s: %s" (.getMessage e)))))
