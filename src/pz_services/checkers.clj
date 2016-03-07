@@ -68,7 +68,7 @@
               "acks" "1"
               "retries" (java.lang.Integer. 1)
               "reconnect.backoff.ms" (java.lang.Integer. 100000)
-              "metadata.fetch.timeout.ms" (java.lang.Integer. 500)
+              "metadata.fetch.timeout.ms" (java.lang.Integer. 10000)
               "message.send.max.retries" (java.lang.Integer. 2)
               "request.timeout.ms" (java.lang.Integer. 500)
               "timeout.ms" (java.lang.Integer. 500)}]
@@ -78,5 +78,6 @@
   (let [record (.getBytes (json/write-str {"hello" "world"}))]
     (try
       @(p/send producer (p/record "pz-services-test" record))
+      true
       (catch Exception e
         (log/errorf "Error connection to kafka: %s" (.getMessage e))))))
