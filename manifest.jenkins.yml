@@ -1,16 +1,15 @@
 applications:
 - name: pz-services
   host: pz-services
-  path: app.jar
+  path: pz-services.jar
+  buildpack: java_buildpack_offline
+  domain: stage.geointservices.io
   memory: 512M
   instances: 1
   timeout: 180
-  buildpack: java_buildpack_offline
   services:
     - pz-postgres
     - pz-geoserver
     - pz-blobstore
     - pz-zookeeper
     - pz-kafka
-  env:
-    CF_INSTANCE_PORTS: '[{external:5432,internal:5432}]'
