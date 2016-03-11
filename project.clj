@@ -23,5 +23,4 @@
                  [org.slf4j/slf4j-api "1.7.18"]]
   :main pz-services.core
   :jvm-opts ["-server"]
-  :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
