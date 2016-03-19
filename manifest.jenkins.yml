@@ -4,7 +4,7 @@ applications:
   path: pz-services.jar
   buildpack: java_buildpack_offline
   domain: stage.geointservices.io
-  memory: 128M
+  memory: 256M
   instances: 1
   timeout: 180
   services:
