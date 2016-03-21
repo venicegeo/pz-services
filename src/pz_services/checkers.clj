@@ -27,9 +27,9 @@
       (log/errorf "Error requesting s3 %s: %s" bucket (.getMessage e)))))
 
 (defn http [url]
-  (log/debugf "http: %s" url)
+  (log/debug url)
   (try
-    (= 200 (:status @(client/get (format "http://%s/geoserver/web" url) {:timeout 1500})))
+    (= 200 (:status @(client/get url {:timeout 1500})))
     (catch Exception e
       (log/errorf "Error requesting %s: %s" url (.getMessage e)))))
 

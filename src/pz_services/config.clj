@@ -10,6 +10,7 @@
                  :password "kpnAQMU2Zd972qVF"}
    :pz-zookeeper {:host "127.0.0.1:2181"}
    :pz-kafka {:host "127.0.0.1:9092"}
+   :pz-elasticsearch {:host "127.0.0.1:9200"}
    :pz-ping {:host "127.0.0.1"}
    :pz-geoserver {:host "geoserver.piazzageo.io" :port "80"}
    :pz-blobstore {:bucket "pz-blobstore-staging"}})

@@ -29,8 +29,10 @@
       :s3 (-> services :pz-blobstore :bucket check/s3)
       :zk (check/zookeeper zk-client)
       :kafka (check/kafka kafka-producer)
-      :geoserver (check/http (format "%s:%s" (-> services :pz-geoserver :host)
-                                             (-> services :pz-geoserver :port)))})))
+      :elasticsearch (check/http (format "http://%s "(-> services :pz-elasticsearch :host)))
+      :geoserver (check/http (format "http://%s:%s/geoserver/web"
+                                     (-> services :pz-geoserver :host)
+                                     (-> services :pz-geoserver :port)))})))
 
 (defroutes all-routes
   (GET "/" [] status))
