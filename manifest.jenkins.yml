@@ -13,3 +13,4 @@ applications:
     - pz-blobstore
     - pz-zookeeper
     - pz-kafka
+    - pz-elasticsearch
