@@ -27,9 +27,9 @@
       (log/errorf "Error requesting s3 %s: %s" bucket (.getMessage e)))))
 
 (defn http [url]
+  (log/debug url)
   (try
     (let [response @(client/get url {:timeout 1500})]
-      (log/infof "%s: %s" url response)
       (= 200 (:status response)))
     (catch Exception e
       (log/errorf "Error requesting %s: %s" url (.getMessage e)))))
