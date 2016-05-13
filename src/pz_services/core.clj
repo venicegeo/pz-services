@@ -21,20 +21,44 @@
 
 (let [services (config/get-services)
       kafka-producer (-> services :pz-kafka :host check/kafka-producer)]
-  (defn- status [req]
+
+  (defn- elasticsearch [req]
+    (check/http (format "http://%s" (-> services :pz-elasticsearch :host))))
+
+  (defn- kafka [req]
+    (check/kafka kafka-producer))
+
+  (defn- geoserver [req]
+    (check/http (format "http://%s:%s/geoserver/web"
+                        (-> services :pz-geoserver :geoserver :hostname)
+                        (-> services :pz-geoserver :geoserver :port))))
+  (defn- blobstore [req]
+    (-> services :pz-blobstore check/s3))
+
+  (defn- geoserver-s3 [req]
+    (-> services :pz-geoserver :s3 check/s3))
+
+  (defn- postgres [req]
+    (-> services config/get-db-config check/postgres))
+
+  (defn- all [req]
     (log/debugf "request: %s" (:remote-addr req))
     (render
-     {:postgres (-> services config/get-db-config check/postgres)
-      :s3 (-> services :pz-blobstore check/s3)
-      :geoserver-s3 (-> services :pz-geoserver :s3 check/s3)
-      :kafka (check/kafka kafka-producer)
-      :elasticsearch (check/http (format "http://%s" (-> services :pz-elasticsearch :host)))
-      :geoserver (check/http (format "http://%s:%s/geoserver/web"
-                                     (-> services :pz-geoserver :geoserver :hostname)
-                                     (-> services :pz-geoserver :geoserver :port)))})))
+     {:postgres      (postgres req)
+      :blobstore     (blobstore req)
+      :geoserver-s3  (geoserver-s3 req)
+      :kafka         (kafka req)
+      :elasticsearch (elasticsearch req)
+      :geoserver     (geoserver req)})))
 
 (defroutes all-routes
-  (GET "/" [] status))
+  (GET "/"              [] all)
+  (GET "/elasticsearch" [] elasticsearch)
+  (GET "/kafka"         [] kafka)
+  (GET "/geoserver"     [] geoserver)
+  (GET "/postgres"      [] postgres)
+  (GET "/blobstore"     [] blobstore)
+  (GET "/geoserver-s3"  [] geoserver-s3))
 
 (def app
   (-> all-routes
