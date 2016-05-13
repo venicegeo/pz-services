@@ -14,10 +14,11 @@
   (:gen-class))
 
 (defn- render [data]
-  (-> data
-      (json/write-str :key-fn name)
-      r/response
-      (r/content-type "application/json")))
+  (let [data* (if (map? data) data {:result data})]
+    (-> data
+        (json/write-str :key-fn name)
+        r/response
+        (r/content-type "application/json"))))
 
 (let [services (config/get-services)
       kafka-producer (-> services :pz-kafka :host check/kafka-producer)]
