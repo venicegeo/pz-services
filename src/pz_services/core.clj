@@ -25,8 +25,8 @@
     (log/debugf "request: %s" (:remote-addr req))
     (render
      {:postgres (-> services config/get-db-config check/postgres)
-      :s3 (-> services :pz-blobstore :bucket check/s3)
-      :geoserver-s3 (-> services :pz-geoserver :s3 :bucket check/s3)
+      :s3 (-> services :pz-blobstore check/s3)
+      :geoserver-s3 (-> services :pz-geoserver :s3 check/s3)
       :kafka (check/kafka kafka-producer)
       :elasticsearch (check/http (format "http://%s" (-> services :pz-elasticsearch :host)))
       :geoserver (check/http (format "http://%s:%s/geoserver/web"

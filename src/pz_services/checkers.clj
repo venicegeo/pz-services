@@ -1,30 +1,47 @@
 (ns pz-services.checkers
   (:require [clojure.data.json :as json]
+            [clojure.java.io :as io]
             [clojure.java.jdbc :as j]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [clj-kafka.new.producer :as p]
             [org.httpkit.client :as client])
   (:import [com.amazonaws.services.s3 AmazonS3Client]
-           [com.amazonaws.services.s3.model]
-           [java.net InetAddress]
-           [org.apache.curator.retry RetryNTimes]
-           [org.apache.curator.framework CuratorFramework
-            CuratorFrameworkFactory]))
+           [com.amazonaws.auth BasicAWSCredentials]
+           [com.amazonaws.services.s3.model ObjectMetadata]
+           [java.util Properties]
+           [org.apache.kafka.clients.producer KafkaProducer ProducerRecord]
+           [java.net InetAddress]))
 
-(defn s3 [bucket]
+(defn s3 [{:keys [bucket access_key_id secret_access_key]}]
   (log/debugf "s3: %s" bucket)
-  (try
-    (->
-     (AmazonS3Client.)
-     (.getObject bucket "refapp.json")
-     .getObjectContent
-     slurp
-     string/trim
-     json/read-str
-     map?)
-    (catch Exception e
-      (log/errorf "Error requesting s3 %s: %s" bucket (.getMessage e)))))
+  (every? true?
+   [(try
+      (->
+       (AmazonS3Client. (BasicAWSCredentials. access_key_id secret_access_key))
+       (.putObject bucket
+                   "test.txt"
+                   (io/input-stream (.getBytes "hello"))
+                   (doto (ObjectMetadata.) (.setContentLength (count (.getBytes "hello")))))
+       .getContentMd5
+       string?)
+      (catch Exception e
+        (log/errorf "Error putting s3 %s: %s" bucket (.getMessage e))))
+    (try
+      (->
+       (AmazonS3Client. (BasicAWSCredentials. access_key_id secret_access_key))
+       (.getObject bucket "test.txt")
+       .getObjectContent
+       slurp
+       string?)
+      (catch Exception e
+        (log/errorf "Error requesting s3 %s: %s" bucket (.getMessage e))))
+    (try
+      (->
+       (AmazonS3Client. (BasicAWSCredentials. access_key_id secret_access_key))
+       (.deleteObject bucket "test.txt")
+       nil?)
+      (catch Exception e
+        (log/errorf "Error deleting s3 %s: %s" bucket (.getMessage e))))]))
 
 (defn http [url]
   (log/debug url)
@@ -34,13 +51,6 @@
     (catch Exception e
       (log/errorf "Error requesting %s: %s" url (.getMessage e)))))
 
-(defn ping [host]
-  (log/debugf "ping: %s" host)
-  (try
-    (.isReachable (InetAddress/getByName host) 1500)
-    (catch Exception e
-      (log/errorf "Error pinging %s: %s" host (.getMessage e)))))
-
 (defn postgres [db]
   (log/debugf "postgres: %s" db)
   (try
@@ -49,36 +59,27 @@
     (catch Exception e
       (log/errorf "Error retrieving test data: %s" (.getMessage e)))))
 
-(defn zk-connect [addr]
-  (let [client (.. (CuratorFrameworkFactory/builder)
-                   (connectString addr)
-                   (retryPolicy (RetryNTimes. Integer/MAX_VALUE 5000))
-                   (build))]
-    (.start client)
-    client))
-
-(defn zookeeper [zkclient]
-  (try
-    (.. zkclient (getZookeeperClient) (isConnected))
-    (catch Exception e
-      (log/errorf "Error connection to zookeeper %s: %s" zkclient (.getMessage e)))))
+(defn- as-properties
+  [m]
+  (let [props (Properties.)]
+    (doseq [[n v] m] (.setProperty props n v))
+    props))
 
 (defn kafka-producer [address]
   (let [conf {"bootstrap.servers" address
-              "producer.type" "sync"
-              "acks" "1"
-              "retries" (java.lang.Integer. 1)
-              "reconnect.backoff.ms" (java.lang.Integer. 100000)
-              "metadata.fetch.timeout.ms" (java.lang.Integer. 10000)
-              "message.send.max.retries" (java.lang.Integer. 2)
-              "request.timeout.ms" (java.lang.Integer. 500)
-              "timeout.ms" (java.lang.Integer. 500)}]
-    (p/producer conf (p/byte-array-serializer) (p/byte-array-serializer))))
+              "acks" "all"
+              "retries" "0"
+              "batch.size" "0"
+              "linger.ms" "1"
+              "buffer.memory" "33554432"
+              "key.serializer" "org.apache.kafka.common.serialization.StringSerializer"
+              "value.serializer" "org.apache.kafka.common.serialization.StringSerializer"}]
+    (KafkaProducer. (as-properties conf))))
 
 (defn kafka [producer]
-  (let [record (.getBytes (json/write-str {"hello" "world"}))]
+  (let [record (ProducerRecord. "pz-services-test" "hello")]
     (try
-      @(p/send producer (p/record "pz-services-test" record))
+      @(.send producer record)
       true
       (catch Exception e
         (log/errorf "Error connection to kafka: %s" (.getMessage e))))))

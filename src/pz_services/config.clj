@@ -4,16 +4,25 @@
             [clojure.tools.logging :as log]))
 
 (def defaults
-  {:pz-postgres {:host "127.0.0.1"
-                 :port "3000"
-                 :username "refuser"
-                 :password "kpnAQMU2Zd972qVF"}
-   :pz-zookeeper {:host "127.0.0.1:2181"}
-   :pz-kafka {:host "127.0.0.1:9092"}
-   :pz-elasticsearch {:host "127.0.0.1:9200"}
-   :pz-ping {:host "127.0.0.1"}
-   :pz-geoserver {:host "geoserver.piazzageo.io" :port "80"}
-   :pz-blobstore {:bucket "pz-blobstore-staging"}})
+  {:pz-kafka {:host "127.0.0.1:9092"
+              :hostname "127.0.0.1"
+              :port "9092"}
+   :pz-elasticsearch {:host "127.0.0.1:9200"
+                      :hostname "127.0.0.1"
+                      :port "9200"}
+   :pz-geoserver {:geoserver {:hostname "gsn-geose-LoadBala-15ZS4UFEZIERA-2099032436.us-east-1.elb.amazonaws.com"
+                              :port "80"}
+                  :s3 {:bucket "gsn-s3-test-geoserver-test"
+                       :access_key_id "AKIAJ4ADPZGNOGUUFIBQ"
+                       :secret_access_key "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"}
+                  :postgres {:hostname "127.0.0.1"
+                             :port "3000"
+                             :database "vhjeswsgv6okntcp"
+                             :username "dhzbaqemc08im6rd"
+                             :password "xpsksvtuz5erbsfm"}}
+   :pz-blobstore {:bucket "gsn-s3-test-app-blobstore-test"
+                  :access_key_id "AKIAI5D2QWAJ6T6B7Q2Q"
+                  :secret_access_key "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"}})
 
 (defn- parse-vcap [vcap-str]
   (let [vcap (-> vcap-str (json/read-str :key-fn keyword) :user-provided)]
@@ -31,8 +40,11 @@
       defaults
       (parse-vcap vcap))))
 
-(defn get-db-config [{:keys [pz-postgres]}]
+(defn get-db-config [{:keys [pz-geoserver]}]
   {:subprotocol "postgresql"
-   :user (:username pz-postgres)
-   :password (:password pz-postgres)
-   :subname (format "//%s:%s/test" (:host pz-postgres) (:port pz-postgres))})
+   :user (-> pz-geoserver :postgres :username)
+   :password (-> pz-geoserver :postgres :password)
+   :subname (format "//%s:%s/%s"
+                    (-> pz-geoserver :postgres :hostname)
+                    (-> pz-geoserver :postgres :port)
+                    (-> pz-geoserver :postgres :database))})
