@@ -59,13 +59,13 @@
 
 (defroutes all-routes
   (GET "/"              [] all)
-  (GET "/blobstore"     [] blobstore)
-  (GET "/elasticsearch" [] elasticsearch)
-  (GET "/geoserver"     [] geoserver)
-  (GET "/geoserver-s3"  [] geoserver-s3)
-  (GET "/kafka"         [] kafka)
-  (GET "/ping"          [] ping)
-  (GET "/postgres"      [] postgres))
+  (GET "/blobstore"     [] #(render (blobstore %)))
+  (GET "/elasticsearch" [] #(render (elasticsearch %)))
+  (GET "/geoserver"     [] #(render (geoserver %)))
+  (GET "/geoserver-s3"  [] #(render (geoserver-s3 %)))
+  (GET "/kafka"         [] #(render (kafka %)))
+  (GET "/ping"          [] #(render (ping %)))
+  (GET "/postgres"      [] #(render (postgres %))))
 
 (def app
   (-> all-routes
