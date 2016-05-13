@@ -11,6 +11,5 @@ applications:
     - pz-postgres
     - pz-geoserver
     - pz-blobstore
-    - pz-zookeeper
     - pz-kafka
     - pz-elasticsearch

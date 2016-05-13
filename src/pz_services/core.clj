@@ -27,12 +27,12 @@
     (render
      {:postgres (-> services config/get-db-config check/postgres)
       :s3 (-> services :pz-blobstore :bucket check/s3)
-      :zk (check/zookeeper zk-client)
+      :geoserver-s3 (-> services :pz-geoserver :s3 :bucket check/s3)
       :kafka (check/kafka kafka-producer)
       :elasticsearch (check/http (format "http://%s" (-> services :pz-elasticsearch :host)))
       :geoserver (check/http (format "http://%s:%s/geoserver/web"
-                                     (-> services :pz-geoserver :host)
-                                     (-> services :pz-geoserver :port)))})))
+                                     (-> services :pz-geoserver :geoserver :hostname)
+                                     (-> services :pz-geoserver :geoserver :port)))})))
 
 (defroutes all-routes
   (GET "/" [] status))
