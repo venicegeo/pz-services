@@ -73,6 +73,7 @@
     props))
 
 (defn kafka-producer [address]
+  (log/infof "boostrap.servers %s" address)
   (let [conf {"bootstrap.servers" address
               "acks" "all"
               "retries" "0"

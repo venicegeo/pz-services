@@ -39,9 +39,6 @@
   (defn- kafka [req]
     (check/kafka kafka-producer))
 
-  (defn- ping [req]
-    (check/ping (-> services :pz-kafka :hostname)))
-
   (defn- postgres [req]
     (-> services config/get-db-config check/postgres))
 
@@ -54,7 +51,6 @@
       :geoserver-s3  (geoserver-s3 req)
       :elasticsearch (elasticsearch req)
       :kafka         (kafka req)
-      :ping          (ping req)
       :postgres      (postgres req)})))
 
 (defroutes all-routes
@@ -64,7 +60,6 @@
   (GET "/geoserver"     [] #(render (geoserver %)))
   (GET "/geoserver-s3"  [] #(render (geoserver-s3 %)))
   (GET "/kafka"         [] #(render (kafka %)))
-  (GET "/ping"          [] #(render (ping %)))
   (GET "/postgres"      [] #(render (postgres %))))
 
 (def app
