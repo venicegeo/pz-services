@@ -20,7 +20,6 @@
       (r/content-type "application/json")))
 
 (let [services (config/get-services)
-      zk-client (-> services :pz-zookeeper :host check/zk-connect)
       kafka-producer (-> services :pz-kafka :host check/kafka-producer)]
   (defn- status [req]
     (log/debugf "request: %s" (:remote-addr req))
