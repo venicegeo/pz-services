@@ -59,6 +59,13 @@
     (catch Exception e
       (log/errorf "Error retrieving test data: %s" (.getMessage e)))))
 
+(defn ping [host]
+  (log/debugf "ping: %s" host)
+  (try
+    (.isReachable (InetAddress/getByName host) 1500)
+    (catch Exception e
+      (log/errorf "Error pinging %s: %s" host (.getMessage e)))))
+
 (defn- as-properties
   [m]
   (let [props (Properties.)]
